@@ -423,8 +423,7 @@ A: 修改 `src/styles/variables.scss` 文件中的CSS变量。
 
 如有问题或建议，请通过以下方式联系：
 
-- 提交 Issue: [GitHub Issues](https://github.com/your-repo/issues)
-- 邮箱: support@example.com
-- 文档: [在线文档](https://docs.example.com)
+- 邮箱: xliu8525@gmail.com
+
 
 ---
