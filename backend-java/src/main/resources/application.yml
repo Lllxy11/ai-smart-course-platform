@@ -1,0 +1,99 @@
+server:
+  port: 8000
+  servlet:
+    context-path: /api/v1
+
+spring:
+  application:
+    name: ai-smart-course-platform
+    
+  # 数据源配置 - MySQL
+  datasource:
+    url: jdbc:mysql://localhost:3306/ai_course_platform?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=GMT%2B8&characterEncoding=utf8&useUnicode=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password:
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
+      auto-commit: true
+      validation-timeout: 5000
+      connection-test-query: SELECT 1
+      pool-name: "HikariPool-MySQL"
+    
+  # JPA配置
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    database-platform: org.hibernate.dialect.MySQLDialect
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          time_zone: GMT+8
+          batch_size: 20
+        connection:
+          provider_disables_autocommit: false
+        hbm2ddl:
+          auto: update
+    
+  # 事务配置
+  transaction:
+    default-timeout: 30
+    
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+      
+  # JSON配置
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+    default-property-inclusion: non_null
+
+# JWT配置
+jwt:
+  secret: 09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
+  expiration: 604800000  # 7天，单位：毫秒
+
+# CORS配置
+cors:
+  allowed-origins:
+    - http://localhost:3000
+    - http://localhost:5173
+    - http://127.0.0.1:3000
+    - http://127.0.0.1:5173
+
+# AI服务配置
+ai:
+  glm4v:
+    api-key: 8891e30ff07e181956046485773933c1.qSd4wVfPd7PNRvbQ
+    base-url: https://open.bigmodel.cn/api/paas/v4
+    model: glm-4v-plus-0111
+
+# 文件存储配置
+file:
+  upload-dir: uploads/
+  max-size: 52428800  # 50MB
+
+# Swagger/OpenAPI配置
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+# 日志配置
+logging:
+  level:
+    com.aicourse: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE 

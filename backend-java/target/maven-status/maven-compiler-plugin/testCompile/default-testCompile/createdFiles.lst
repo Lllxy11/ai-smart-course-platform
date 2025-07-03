@@ -1,0 +1,5 @@
+com\aicourse\service\UserServiceTest.class
+com\aicourse\util\JwtUtilsTest.class
+com\aicourse\config\TestDataBuilder.class
+com\aicourse\config\TestConfig.class
+com\aicourse\PasswordTest.class
