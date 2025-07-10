@@ -12,7 +12,7 @@ spring:
     url: jdbc:mysql://localhost:3306/ai_course_platform?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=GMT%2B8&characterEncoding=utf8&useUnicode=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password:
+    password: Qq041210!
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5
