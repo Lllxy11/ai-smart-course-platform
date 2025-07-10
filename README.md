@@ -32,7 +32,7 @@
 
 ### 环境要求
 - Node.js 16+ 
-- npm 或 yarn
+- npm 
 - 现代浏览器（Chrome、Firefox、Safari、Edge）
 
 ### 安装步骤
@@ -423,7 +423,8 @@ A: 修改 `src/styles/variables.scss` 文件中的CSS变量。
 
 如有问题或建议，请通过以下方式联系：
 
-- 邮箱: xliu8525@gmail.com
+- 邮箱1: xliu8525@gmail.com
+- 邮箱2: powehi041210@gmail.com
 
 
 ---
