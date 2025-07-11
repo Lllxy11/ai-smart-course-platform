@@ -175,6 +175,37 @@
             </el-descriptions>
           </el-card>
 
+          <!-- 课件列表 -->
+          <el-card class="resource-card" style="margin-top: 20px;">
+            <template #header>
+              <h3>课件/资料</h3>
+            </template>
+            <div v-if="isTeacher">
+              <el-form :inline="true" @submit.prevent>
+                <el-form-item label="选择文件">
+                  <input type="file" @change="onResourceFileChange" ref="resourceFileInput" />
+                </el-form-item>
+                <el-form-item label="描述">
+                  <el-input v-model="resourceUploadForm.description" placeholder="可选" style="width: 200px;" />
+                </el-form-item>
+                <el-form-item>
+                  <el-button type="primary" @click="uploadResourceAction" :loading="uploadingResource">上传</el-button>
+                </el-form-item>
+              </el-form>
+            </div>
+            <el-table :data="resourceList" size="small" v-loading="resourceLoading">
+              <el-table-column prop="fileName" label="文件名" />
+              <el-table-column prop="fileType" label="类型" />
+              <el-table-column prop="uploadTime" label="上传时间" />
+              <el-table-column label="操作">
+                <template #default="{ row }">
+                  <el-button size="small" type="primary" @click="downloadResource(row)">下载</el-button>
+                  <el-button size="small" type="success" v-if="canPreview(row)" @click="previewResource(row)">预览</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-card>
+
           <!-- 操作按钮 -->
           <el-card class="action-card">
             <template #header>
@@ -327,6 +358,20 @@
         <el-button type="primary" @click="submitGrade">提交批改</el-button>
       </el-dialog>
     </el-dialog>
+
+    <el-dialog v-model="showPreviewDialog" title="课件预览" width="60vw" @close="closePreviewDialog">
+      <template #default>
+        <div v-if="previewType === 'video'">
+          <video :src="previewUrl" controls style="width:100%;max-height:70vh;" />
+        </div>
+        <div v-else-if="previewType === 'pdf'">
+          <iframe :src="previewUrl" style="width:100%;height:70vh;" frameborder="0"></iframe>
+        </div>
+        <div v-else>
+          <p>暂不支持该文件类型的在线预览，请下载后查看。</p>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -343,6 +388,7 @@ import { getCourseById, enrollCourse as enrollCourseAPI } from '@/api/course'
 import { generateCourseContent } from '@/api/ai'
 import { getTasks } from '@/api/task'
 import { submitAssignment, getMySubmissions, getAllSubmissions, gradeSubmission } from '@/api/submission'
+import { getResourceList, downloadResource as apiDownloadResource, uploadResource } from '@/api/resource'
 
 const route = useRoute()
 const router = useRouter()
@@ -364,6 +410,14 @@ const submitForm = ref({ content: '', file: null, taskId: null })
 const mySubmissions = ref([])
 const allSubmissions = ref([])
 const gradeForm = ref({ id: null, score: '', feedback: '' })
+const resourceList = ref([])
+const resourceLoading = ref(false)
+const resourceUploadForm = ref({ file: null, description: '' })
+const resourceFileInput = ref(null)
+const uploadingResource = ref(false)
+const showPreviewDialog = ref(false)
+const previewUrl = ref('')
+const previewType = ref('')
 
 // 计算属性
 const courseId = computed(() => route.params.courseId)
@@ -726,10 +780,102 @@ async function submitGrade() {
   loadAllSubmissions(submitForm.value.taskId)
 }
 
+const loadResourceList = async () => {
+  resourceLoading.value = true
+  try {
+    const res = await getResourceList(courseId.value)
+    resourceList.value = res.data || []
+  } catch (e) {
+    ElMessage.error('课件加载失败')
+  } finally {
+    resourceLoading.value = false
+  }
+}
+
+const downloadResource = async (row) => {
+  try {
+    const res = await apiDownloadResource(row.id)
+    const blob = new Blob([res.data], { type: row.fileType })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = row.fileName
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+  } catch (e) {
+    ElMessage.error('下载失败')
+  }
+}
+
+const onResourceFileChange = (e) => {
+  resourceUploadForm.value.file = e.target.files[0]
+}
+
+const uploadResourceAction = async () => {
+  if (!resourceUploadForm.value.file) {
+    ElMessage.warning('请先选择文件')
+    return
+  }
+  uploadingResource.value = true
+  try {
+    await uploadResource({
+      file: resourceUploadForm.value.file,
+      courseId: courseId.value,
+      description: resourceUploadForm.value.description
+    })
+    ElMessage.success('上传成功')
+    resourceUploadForm.value.file = null
+    resourceUploadForm.value.description = ''
+    if (resourceFileInput.value) resourceFileInput.value.value = ''
+    loadResourceList()
+  } catch (e) {
+    ElMessage.error('上传失败')
+  } finally {
+    uploadingResource.value = false
+  }
+}
+
+const canPreview = (row) => {
+  const type = (row.fileType || '').toLowerCase()
+  return type.includes('video') || type === 'application/pdf' || row.fileName.endsWith('.pdf')
+}
+
+const previewResource = async (row) => {
+  try {
+    const res = await apiDownloadResource(row.id)
+    const type = (row.fileType || '').toLowerCase()
+    let url = ''
+    if (type.includes('video')) {
+      url = window.URL.createObjectURL(new Blob([res.data], { type: row.fileType }))
+      previewType.value = 'video'
+    } else if (type === 'application/pdf' || row.fileName.endsWith('.pdf')) {
+      url = window.URL.createObjectURL(new Blob([res.data], { type: row.fileType }))
+      previewType.value = 'pdf'
+    } else {
+      previewType.value = 'other'
+    }
+    previewUrl.value = url
+    showPreviewDialog.value = true
+  } catch (e) {
+    ElMessage.error('预览失败')
+  }
+}
+
+const closePreviewDialog = () => {
+  if (previewUrl.value) {
+    window.URL.revokeObjectURL(previewUrl.value)
+    previewUrl.value = ''
+  }
+  previewType.value = ''
+}
+
 // 生命周期
 onMounted(() => {
   loadCourseDetail()
   loadTasks()
+  loadResourceList()
 })
 </script>
 

@@ -12,6 +12,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/resources")
@@ -79,6 +85,30 @@ public class ResourceController {
         result.put("description", "这是一个示例学习资源");
         
         return ResponseEntity.ok(result);
+    }
+
+    // 课件文件下载/预览接口
+    @GetMapping("/download/{id}")
+    public ResponseEntity<org.springframework.core.io.Resource> downloadResource(@PathVariable Long id) {
+        com.aicourse.entity.Resource resource = resourceService.getResource(id);
+        if (resource == null) {
+            return ResponseEntity.notFound().build();
+        }
+        try {
+            String filePath = System.getProperty("user.dir") + resource.getUrl();
+            Path path = Paths.get(filePath);
+            org.springframework.core.io.Resource fileResource = new UrlResource(path.toUri());
+            if (!((UrlResource)fileResource).exists()) {
+                return ResponseEntity.notFound().build();
+            }
+            String contentType = resource.getFileType() != null ? resource.getFileType() : MediaType.APPLICATION_OCTET_STREAM_VALUE;
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFileName() + "\"")
+                    .body(fileResource);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     /**
