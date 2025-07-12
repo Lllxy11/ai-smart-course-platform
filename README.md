@@ -426,5 +426,10 @@ A: 修改 `src/styles/variables.scss` 文件中的CSS变量。
 - 邮箱1: xliu8525@gmail.com
 - 邮箱2: powehi041210@gmail.com
 
-
+## 项目贡献度
+- 刘溪月：22%
+- 王瑞琦：22%
+- 石煜麟：22%
+- 刘嘉伟：22%
+- 木拉哈：22%
 ---
