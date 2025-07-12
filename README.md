@@ -3,6 +3,7 @@
 ## 🧠 项目简介
 
 AI智能课程平台是一个融合人工智能与教学管理的现代化在线教育系统，面向学生、教师与管理员，旨在提供个性化学习体验、高效的教学支持及全面的管理能力。前端采用 Vue 3 和 Element Plus 构建，后端基于 Spring Boot，双方通过 RESTful API 协同工作。
+开源仓库的完整地址：https://github.com/Lllxy11/ai-smart-course-platform.git
 
 ## ✨ 功能特性
 
