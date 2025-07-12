@@ -1,6 +1,8 @@
 # AI智能课程平台 - 前端应用
 
-基于Vue 3 + Element Plus开发的现代化在线教育平台前端，与Spring Boot后端API完美对接。
+## 🧠 项目简介
+
+AI智能课程平台是一个融合人工智能与教学管理的现代化在线教育系统，面向学生、教师与管理员，旨在提供个性化学习体验、高效的教学支持及全面的管理能力。前端采用 Vue 3 和 Element Plus 构建，后端基于 Spring Boot，双方通过 RESTful API 协同工作。
 
 ## ✨ 功能特性
 
@@ -425,6 +427,7 @@ A: 修改 `src/styles/variables.scss` 文件中的CSS变量。
 
 - 邮箱1: xliu8525@gmail.com
 - 邮箱2: powehi041210@gmail.com
+- 邮箱3：1571990047@qq.com
 
 ## 项目贡献度
 - 刘溪月：22%--用户与认证模块+系统配置与安全
